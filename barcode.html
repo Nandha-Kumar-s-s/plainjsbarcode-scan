@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Barcode Scanner</h1>
+    <button onclick="startScanner()">Start Scanner</button>
+    <video id="barcodeScanner" style="display: none;"></video>
+    <p id="barcodeResult"></p>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <script>
+        let codeReader;
+
+        async function startScanner() {
+            codeReader = new ZXing.BrowserQRCodeReader();
+            const videoElement = document.getElementById('barcodeScanner');
+            const resultElement = document.getElementById('barcodeResult');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                videoElement.srcObject = stream;
+                videoElement.style.display = 'block';
+                codeReader.decodeFromVideoDevice(undefined, 'barcodeScanner', (result, error) => {
+                    if (result) {
+                        resultElement.textContent = 'Barcode detected: ' + result.text;
+                        // You can further process the scanned barcode here
+                    }
+                    if (error) {
+                        console.error(error);
+                    }
+                });
+            } catch (err) {
+                console.error('Error accessing the camera:', err);
+            }
+        }
+
+        function stopScanner() {
+            if (codeReader) {
+                codeReader.reset();
+                const videoElement = document.getElementById('barcodeScanner');
+                videoElement.style.display = 'none';
+                document.getElementById('barcodeResult').textContent = ''; // Clear result on stop
+            }
+        }
+    </script>
+    
+</body>
+</html>

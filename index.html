@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barcode Scanner Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+  </head>
+  <body>
+
+    <div id="scanner">
+        <video id="video-preview"></video>
+        <button id="toggleScanner">Start Scanner</button>
+        <p id="scannedValue"></p>
+    </div>
+    
+    <script>
+    $(document).ready(function() {
+        var scanner = null;
+    
+        $('#toggleScanner').on('click', function() {
+            if (scanner !== null) {
+                scanner.stop(); // Stop the scanner if it's running
+                $('#toggleScanner').text('Start Scanner');
+                scanner = null;
+            } else {
+                scanner = new Instascan.Scanner({ video: document.getElementById('video-preview') });
+                scanner.addListener('scan', function(content) {
+                    $('#scannedValue').text('Scanned barcode: ' + content);
+                });
+                Instascan.Camera.getCameras().then(function(cameras) {
+                    if (cameras.length > 0) {
+                        scanner.start(cameras[0]);
+                        $('#toggleScanner').text('Stop Scanner');
+                    } else {
+                        console.error('No cameras found.');
+                    }
+                }).catch(function(e) {
+                    console.error(e);
+                });
+            }
+        });
+    });
+    </script>
+    
+    </body>
+</html>
